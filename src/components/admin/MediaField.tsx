@@ -3,7 +3,13 @@ import { FileText, ImagePlus, Loader2, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { isStorageRef, parseStorageRef, validateUpload, type Bucket } from "@/lib/media";
+import {
+  isStorageRef,
+  parseStorageRef,
+  uploadContentType,
+  validateUpload,
+  type Bucket,
+} from "@/lib/media";
 
 export function useMediaUrl(value: string | null | undefined) {
   const [url, setUrl] = useState<string | null>(null);
@@ -36,14 +42,18 @@ async function upload(file: File, bucket: Bucket): Promise<string | null> {
       ?.toLowerCase()
       .replace(/[^a-z0-9]/g, "") || "bin";
   const path = `${new Date().getFullYear()}/${crypto.randomUUID()}.${ext}`;
-  const { error } = await supabase.storage
-    .from(bucket)
-    .upload(path, file, { contentType: file.type, upsert: false });
-  if (error) {
-    toast.error(`Upload failed: ${error.message}`);
+  try {
+    const { error } = await supabase.storage
+      .from(bucket)
+      .upload(path, file, { contentType: uploadContentType(file), upsert: false });
+    if (error) throw error;
+    return `sb:${bucket}/${path}`;
+  } catch (error) {
+    toast.error(
+      `Upload failed: ${error instanceof Error ? error.message : "Please check your connection and try again."}`,
+    );
     return null;
   }
-  return `sb:${bucket}/${path}`;
 }
 
 async function removeStored(value: string | null | undefined) {

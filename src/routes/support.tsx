@@ -5,6 +5,7 @@ import { ArrowLeft, CheckCircle2, Copy, Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { supabase } from "@/lib/supabase";
+import { uploadContentType, validateUpload } from "@/lib/media";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
@@ -38,8 +39,6 @@ export const Route = createFileRoute("/support")({
   }),
   component: SupportPage,
 });
-
-const RECEIPT_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 
 function Row({ label, value }: { label: string; value: string | null | undefined }) {
   return (
@@ -84,12 +83,9 @@ function SupportPage() {
       toast.error("Please choose your receipt.");
       return;
     }
-    if (!RECEIPT_TYPES.includes(file.type)) {
-      toast.error("Receipt must be a JPG, PNG, WebP or PDF.");
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Receipt must be 10 MB or smaller.");
+    const validationError = validateUpload(file, "receipts");
+    if (validationError) {
+      toast.error(validationError);
       return;
     }
     setBusy(true);
@@ -100,23 +96,23 @@ function SupportPage() {
         ?.toLowerCase()
         .replace(/[^a-z0-9]/g, "") || "bin";
     const path = `${new Date().getFullYear()}/${crypto.randomUUID()}.${ext}`;
-    const up = await supabase.storage
-      .from("receipts")
-      .upload(path, file, { contentType: file.type, upsert: false });
-    if (up.error) {
+    try {
+      const up = await supabase.storage
+        .from("receipts")
+        .upload(path, file, { contentType: uploadContentType(file), upsert: false });
+      if (up.error) throw up.error;
+      const { error } = await supabase
+        .from("support_payments")
+        .insert({ amount, email, name: name || null, receipt: `sb:receipts/${path}` });
+      if (error) throw error;
+      setDone(true);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Please check your connection and try again.",
+      );
+    } finally {
       setBusy(false);
-      toast.error(`Upload failed: ${up.error.message}`);
-      return;
     }
-    const { error } = await supabase
-      .from("support_payments")
-      .insert({ amount, email, name: name || null, receipt: `sb:receipts/${path}` });
-    setBusy(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    setDone(true);
   }
 
   return (
