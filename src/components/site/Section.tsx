@@ -20,7 +20,7 @@ export function Section({
   return (
     <section id={id} className="px-5 py-16 sm:py-24">
       <div className="mx-auto max-w-6xl">
-        <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
+        <div data-reveal className="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
           <span className="inline-block rounded-full border border-gold/40 bg-gold-soft/60 px-4 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-gold-deep">
             {eyebrow}
           </span>

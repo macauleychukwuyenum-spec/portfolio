@@ -10,10 +10,12 @@
 <!-- LOVABLE:END -->
 
 ## Portfolio architecture
+- Public portfolio motion is progressive enhancement through one scoped observer hook and CSS; content stays visible without JavaScript, focused items reveal immediately, and reduced motion disables effects.
 - The repo itself is portable: plain Vite config (Nitro auto-detects host), app code uses `src/lib/supabase.ts` (env-validated, VITE_ vars only), SQL lives in `supabase/migrations`; no Drizzle or @lovable packages, so it runs on any Node host/Vercel.
 - Public pages read content through server functions in `src/lib/portfolio.functions.ts` (publishable client, published rows only) so SSR works and drafts never leak.
 - Admin pages under `/admin` (ssr:false gate, inline owner sign-in at `/admin`, signed-out child routes redirect to `/admin`) write directly with the browser client; RLS `has_role(auth.uid(),'admin')` is the real authorization.
 - Media columns store `sb:<bucket>/<path>` refs (buckets `images`, `files` are private because public buckets are blocked); resolve to signed URLs server-side for public pages and via `useMediaUrl` in admin.
+- All upload areas share media validation and MIME normalization in `src/lib/media.ts`, so device-reported generic file types do not reject supported extensions and bucket limits stay consistent.
 - Public sign-up is disabled; the first account created (Users → Add user) becomes admin via a trigger on auth.users.
 - Content collections share one config-driven `CollectionManager`; add new types by passing field definitions, not new editors.
 - The shared public portfolio query uses bounded freshness and admin-write invalidation to avoid redundant reads without hiding saved updates.

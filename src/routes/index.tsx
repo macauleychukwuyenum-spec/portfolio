@@ -9,6 +9,7 @@ import { SiteFooter, SocialRow } from "@/components/site/SiteFooter";
 import { EmptyState, ResourceGrid, Section } from "@/components/site/Section";
 import { ContentIcon } from "@/components/site/icons";
 import { SupportSection } from "@/components/site/SupportSection";
+import { usePortfolioMotion } from "@/hooks/use-portfolio-motion";
 
 export const portfolioQuery = queryOptions({
   queryKey: ["portfolio"],
@@ -73,6 +74,7 @@ function CtaLink({
 }
 
 function Index() {
+  const motionRef = usePortfolioMotion();
   const { data } = useSuspenseQuery(portfolioQuery);
   const s = data.settings;
   const brand = s?.brand_name || "Chozen";
@@ -80,7 +82,7 @@ function Index() {
   const stats = data.stats.filter((x) => x.kind === "stat");
 
   return (
-    <>
+    <div ref={motionRef} className="portfolio-motion">
       <SiteHeader brand={brand} />
       <main>
         {/* Hero */}
@@ -90,7 +92,7 @@ function Index() {
             aria-hidden
           />
           <div className="relative mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
-            <div className="order-2 text-center lg:order-1 lg:text-left">
+            <div className="portfolio-intro order-2 text-center lg:order-1 lg:text-left">
               {s?.hero_eyebrow && (
                 <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-card/70 px-4 py-1.5 text-sm font-medium">
                   <span className="h-2 w-2 rounded-full bg-gold" aria-hidden /> {s.hero_eyebrow}
@@ -126,7 +128,7 @@ function Index() {
                 )}
               </div>
             </div>
-            <div className="order-1 mx-auto w-full max-w-[17rem] sm:max-w-sm lg:order-2 lg:max-w-md">
+            <div className="portfolio-portrait order-1 mx-auto w-full max-w-[17rem] sm:max-w-sm lg:order-2 lg:max-w-md">
               <div className="relative aspect-square rounded-full bg-gold-gradient p-1.5 shadow-lift">
                 <div className="h-full w-full overflow-hidden rounded-full bg-card">
                   {s?.hero_image ? (
@@ -377,6 +379,6 @@ function Index() {
         )}
       </main>
       <SiteFooter brand={brand} text={s?.footer_text ?? ""} socials={data.socials} />
-    </>
+    </div>
   );
 }

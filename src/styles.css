@@ -196,6 +196,51 @@
   transform: rotate(-16deg);
 }
 
+@keyframes portfolio-enter {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .portfolio-intro > * {
+    animation: portfolio-enter 650ms cubic-bezier(.2,.7,.2,1) both;
+  }
+  .portfolio-intro > :nth-child(2) { animation-delay: 70ms; }
+  .portfolio-intro > :nth-child(3) { animation-delay: 140ms; }
+  .portfolio-intro > :nth-child(4) { animation-delay: 210ms; }
+  .portfolio-intro > :nth-child(5) { animation-delay: 280ms; }
+  .portfolio-portrait {
+    animation: portfolio-enter 800ms cubic-bezier(.2,.7,.2,1) both;
+  }
+  .portfolio-motion [data-motion] {
+    transition: opacity 600ms ease, translate 600ms cubic-bezier(.2,.7,.2,1),
+      transform 350ms cubic-bezier(.2,.7,.2,1), box-shadow 350ms ease;
+  }
+  .portfolio-motion [data-motion="pending"] {
+    opacity: 0;
+    translate: 0 18px;
+  }
+  .portfolio-motion [data-motion="revealed"] {
+    opacity: 1;
+    translate: 0 0;
+  }
+  .portfolio-motion a, .portfolio-motion button {
+    transition: color 200ms ease, background-color 200ms ease, border-color 200ms ease,
+      opacity 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+  }
+  .portfolio-motion a:active, .portfolio-motion button:active {
+    transform: translateY(1px);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .portfolio-motion a[data-slot="button"]:hover,
+  .portfolio-motion button[data-slot="button"]:hover,
+  .portfolio-motion a[aria-label]:not(header a):hover {
+    transform: translateY(-2px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }

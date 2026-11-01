@@ -65,9 +65,16 @@ const SOCIAL: Record<string, LucideIcon> = {
   whatsapp: MessageCircle,
   website: Globe,
 };
-export const SOCIAL_PLATFORMS = Object.keys(SOCIAL);
+export const SOCIAL_PLATFORMS = [...Object.keys(SOCIAL), "tiktok"];
 
 export function SocialIcon({ platform, className }: { platform: string; className?: string }) {
+  if (platform.toLowerCase() === "tiktok") {
+    return (
+      <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+        <path d="M16.7 2h-3.6v13.8a3.1 3.1 0 1 1-2.7-3.1V9a6.7 6.7 0 1 0 6.3 6.7V8.5a9 9 0 0 0 5.3 1.7V6.6A5.4 5.4 0 0 1 16.7 2Z" />
+      </svg>
+    );
+  }
   const I = SOCIAL[platform.toLowerCase()] ?? Globe;
   return <I className={className} aria-hidden />;
 }
